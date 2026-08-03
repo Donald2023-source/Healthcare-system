@@ -33,34 +33,34 @@ export function LoginForm() {
 
   async function onSubmit(values: LoginSchema) {
     console.log(values);
-      try {
-          const res = await fetch("/api/auth/login", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(values),
-          });
-          const result = await res.json();
-          if (result.status === 201) {
-            toast.add({
-              title: result.message,
-              type: "success",
-            });
-          } else {
-             toast.add({
-              title: result.message,
-              type: "error",
-            });
-          }
-          console.log(result);
-        } catch (err) {
-          console.log("Something went wrong", err);
-            toast.add({
-              title: "Something went wrong",
-              type: "error",
-            });
-        }
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(values),
+      });
+      const result = await res.json();
+      if (result.status === 200) {
+        toast.add({
+          title: result.message,
+          type: "success",
+        });
+      } else {
+        toast.add({
+          title: result.message,
+          type: "error",
+        });
+      }
+      console.log(result);
+    } catch (err) {
+      console.log("Something went wrong", err);
+      toast.add({
+        title: "Something went wrong",
+        type: "error",
+      });
+    }
   }
 
   return (
@@ -128,7 +128,11 @@ export function LoginForm() {
               )}
             />
 
-            <Button className="w-full" disabled={form.formState.isSubmitting}>
+            <Button
+              type="submit"
+              className="w-full"
+              disabled={form.formState.isSubmitting}
+            >
               {form.formState.isSubmitting ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
