@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "@/components/ui/toast";
+import { useRouter } from "next/navigation";
 export function RegisterForm() {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -24,36 +25,40 @@ export function RegisterForm() {
     resolver: zodResolver(registerSchema),
   });
 
+  const router = useRouter()
+
   async function onSubmit(data: RegisterSchema) {
     console.log(data);
-    try {
-      const res = await fetch("/api/auth/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
+    const response = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        fullName: data.fullName,
+        email: data.email,
+        phoneNumber: data.phoneNumber,
+        password: data.password,
+      }),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok) {
+      toast.add({
+        title: "Error",
+        description: result.message,
+      
       });
-      const result = await res.json();
-      if (result.status === 201) {
-        toast.add({
-          title: result.message,
-          type: "success",
-        });
-      } else {
-         toast.add({
-          title: result.message,
-          type: "error",
-        });
-      }
-      console.log(result);
-    } catch (err) {
-      console.log("Something went wrong", err);
-        toast.add({
-          title: result.message,
-          type: "error",
-        });
+      return;
     }
+
+    toast.add({
+      title: "Success",
+      description: "Account created successfully!",
+    });
+
+    router.push("/dashboard");
   }
 
   return (

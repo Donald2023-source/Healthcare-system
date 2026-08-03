@@ -19,6 +19,8 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
@@ -31,38 +33,30 @@ export function LoginForm() {
     },
   });
 
+  const router = useRouter();
+
   async function onSubmit(values: LoginSchema) {
-    console.log(values);
-    try {
-      const res = await fetch("/api/auth/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(values),
-      });
-      const result = await res.json();
-      if (result.status === 200) {
-        toast.add({
-          title: result.message,
-          type: "success",
-        });
-      } else {
-        toast.add({
-          title: result.message,
-          type: "error",
-        });
-      }
-      console.log(result);
-    } catch (err) {
-      console.log("Something went wrong", err);
+    const result = await signIn("credentials", {
+      email: values.email,
+      password: values.password,
+      redirect: false,
+    });
+
+    if (result?.error) {
       toast.add({
-        title: "Something went wrong",
+        title: "Invalid email or password.",
         type: "error",
       });
+      return;
     }
-  }
 
+    toast.add({
+      title: "Login successful!",
+      type: "success",
+    });
+
+    router.push("/dashboard");
+  }
   return (
     <Card>
       <CardHeader className="space-y-2 text-center">

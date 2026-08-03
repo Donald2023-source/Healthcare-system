@@ -3,7 +3,7 @@ import { Geist, Geist_Mono, Inter } from "next/font/google";
 import "./globals.css";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toast";
-
+import AuthProvider from "@/providers/SessionProvider";
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 const geistSans = Geist({
@@ -38,8 +38,10 @@ export default function RootLayout({
         inter.variable,
       )}
     >
-      <Toaster  />
-      <body className="min-h-full flex flex-col">{children}</body>
+      <Toaster />
+      <body className="min-h-full flex flex-col">
+        <AuthProvider>{children}</AuthProvider>
+      </body>
     </html>
   );
 }
