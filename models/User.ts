@@ -1,27 +1,59 @@
-import mongoose, { Schema, Document, Model } from "mongoose";
+import mongoose, { Document, Model, Schema } from "mongoose";
 
 export enum UserRole {
-  PATIENT = "PATIENT",
+  ADMIN = "ADMIN",
   RECEPTIONIST = "RECEPTIONIST",
   DOCTOR = "DOCTOR",
-  ADMIN = "ADMIN",
+  NURSE = "NURSE",
+  LAB_TECHNICIAN = "LAB_TECHNICIAN",
+  PHARMACIST = "PHARMACIST",
+  PATIENT = "PATIENT",
 }
 
 export interface IUser extends Document {
-  fullName: string;
+  firstName: string;
+  middleName?: string;
+  lastName: string;
+
   email: string;
+
   phoneNumber: string;
+
   password: string;
+
   role: UserRole;
-  isVerified: boolean;
+
+  avatar?: string;
+
+  gender?: "MALE" | "FEMALE";
+
+  dateOfBirth?: Date;
+
   isActive: boolean;
+
+  isVerified: boolean;
+
+  lastLogin?: Date;
+
   createdAt: Date;
+
   updatedAt: Date;
 }
 
 const UserSchema = new Schema<IUser>(
   {
-    fullName: {
+    firstName: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    middleName: {
+      type: String,
+      trim: true,
+    },
+
+    lastName: {
       type: String,
       required: true,
       trim: true,
@@ -49,7 +81,21 @@ const UserSchema = new Schema<IUser>(
     role: {
       type: String,
       enum: Object.values(UserRole),
-      default: UserRole.PATIENT,
+      required: true,
+    },
+
+    avatar: String,
+
+    gender: {
+      type: String,
+      enum: ["MALE", "FEMALE"],
+    },
+
+    dateOfBirth: Date,
+
+    isActive: {
+      type: Boolean,
+      default: true,
     },
 
     isVerified: {
@@ -57,15 +103,26 @@ const UserSchema = new Schema<IUser>(
       default: false,
     },
 
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
+    lastLogin: Date,
   },
   {
     timestamps: true,
-  }
+  },
 );
+
+UserSchema.virtual("fullName").get(function () {
+  return [this.firstName, this.middleName, this.lastName]
+    .filter(Boolean)
+    .join(" ");
+});
+
+UserSchema.set("toJSON", {
+  virtuals: true,
+});
+
+UserSchema.set("toObject", {
+  virtuals: true,
+});
 
 const User: Model<IUser> =
   mongoose.models.User || mongoose.model<IUser>("User", UserSchema);
