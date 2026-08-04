@@ -1,15 +1,21 @@
-import mongoose, { Document, Model, Schema } from "mongoose";
+import mongoose, { Schema, model, models } from "mongoose";
 
-export interface IDepartment extends Document {
+export interface IDepartment {
   name: string;
+
   code: string;
+
   description?: string;
-  consultationFee: number;
-  averageConsultationTime: number;
-  queuePrefix: string;
+
+  location?: string;
+
+  color?: string;
+
+  consultationDuration: number;
+
+  dailyCapacity: number;
+
   isActive: boolean;
-  createdAt: Date;
-  updatedAt: Date;
 }
 
 const DepartmentSchema = new Schema<IDepartment>(
@@ -26,27 +32,26 @@ const DepartmentSchema = new Schema<IDepartment>(
       required: true,
       unique: true,
       uppercase: true,
+      trim: true,
     },
 
-    description: {
+    description: String,
+
+    location: String,
+
+    color: {
       type: String,
-      default: "",
+      default: "#2563EB",
     },
 
-    consultationFee: {
-      type: Number,
-      default: 0,
-    },
-
-    averageConsultationTime: {
+    consultationDuration: {
       type: Number,
       default: 15,
     },
 
-    queuePrefix: {
-      type: String,
-      required: true,
-      uppercase: true,
+    dailyCapacity: {
+      type: Number,
+      default: 100,
     },
 
     isActive: {
@@ -59,8 +64,15 @@ const DepartmentSchema = new Schema<IDepartment>(
   }
 );
 
-const Department: Model<IDepartment> =
-  mongoose.models.Department ||
-  mongoose.model<IDepartment>("Department", DepartmentSchema);
+DepartmentSchema.index({
+  code: 1,
+});
+
+const Department =
+  models.Department ||
+  model<IDepartment>(
+    "Department",
+    DepartmentSchema
+  );
 
 export default Department;

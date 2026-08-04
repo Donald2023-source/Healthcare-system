@@ -15,34 +15,22 @@ class PatientService {
       firstName: data.firstName,
       middleName: data.middleName,
       lastName: data.lastName,
-
       email: data.email,
       phoneNumber: data.phoneNumber,
-
       password: hashedPassword,
-
       role: UserRole.PATIENT,
     });
 
     const patient = await Patient.create({
       user: user._id,
-
       hospitalNumber: generateHospitalNumber(),
-
       gender: data.gender,
-
       dateOfBirth: data.dateOfBirth,
-
       bloodGroup: data.bloodGroup,
-
       genotype: data.genotype,
-
       maritalStatus: data.maritalStatus,
-
       address: data.address,
-
       emergencyContactName: data.emergencyContactName,
-
       emergencyContactPhone: data.emergencyContactPhone,
     });
 
@@ -51,6 +39,40 @@ class PatientService {
       patient,
       temporaryPassword: password,
     };
+  }
+  async search(query: string) {
+    return Patient.find({
+      hospitalNumber: {
+        $regex: query,
+        $options: "i",
+      },
+    })
+      .populate({
+        path: "user",
+        match: {
+          $or: [
+            {
+              firstName: {
+                $regex: query,
+                $options: "i",
+              },
+            },
+            {
+              lastName: {
+                $regex: query,
+                $options: "i",
+              },
+            },
+            {
+              phoneNumber: {
+                $regex: query,
+                $options: "i",
+              },
+            },
+          ],
+        },
+      })
+      .limit(20);
   }
 }
 

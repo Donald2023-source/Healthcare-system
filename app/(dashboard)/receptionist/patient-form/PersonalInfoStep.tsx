@@ -38,22 +38,6 @@ export default function PersonalInfoStep({ form }: Props) {
 
       <FormField
         control={form.control}
-        name="middleName"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Middle Name</FormLabel>
-
-            <FormControl>
-              <Input {...field} />
-            </FormControl>
-
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={form.control}
         name="lastName"
         render={({ field }) => (
           <FormItem>
@@ -77,6 +61,28 @@ export default function PersonalInfoStep({ form }: Props) {
 
             <FormControl>
               <Input type="email" {...field} />
+            </FormControl>
+
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+      <FormField
+        control={form.control}
+        name="dateOfBirth"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>DOB</FormLabel>
+
+            <FormControl>
+              <Input
+                type="date"
+                value={field.value ? field.value.toISOString().slice(0, 10) : ""}
+                onChange={(event) => field.onChange(event.target.value ? new Date(event.target.value) : undefined)}
+                onBlur={field.onBlur}
+                name={field.name}
+                ref={field.ref}
+              />
             </FormControl>
 
             <FormMessage />

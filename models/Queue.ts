@@ -1,44 +1,45 @@
 import mongoose, { Document, Model, Schema } from "mongoose";
 
 export enum QueueStatus {
-  OPEN = "OPEN",
-  PAUSED = "PAUSED",
-  CLOSED = "CLOSED",
+  WAITING = "WAITING",
+  WITH_DOCTOR = "WITH_DOCTOR",
+  COMPLETED = "COMPLETED",
+  CANCELLED = "CANCELLED",
 }
 
 export interface IQueue extends Document {
+  patient: mongoose.Types.ObjectId;
+
   department: mongoose.Types.ObjectId;
 
-  doctor?: mongoose.Types.ObjectId;
+  queueNumber: number;
 
   date: Date;
 
-  currentNumber: number;
-
-  totalServed: number;
-
-  totalWaiting: number;
-
-  averageWaitingTime: number;
-
   status: QueueStatus;
 
-  createdAt: Date;
+  estimatedTime: number;
 
-  updatedAt: Date;
+  checkedInAt: Date;
 }
 
 const QueueSchema = new Schema<IQueue>(
   {
+    patient: {
+      type: Schema.Types.ObjectId,
+      ref: "Patient",
+      required: true,
+    },
+
     department: {
       type: Schema.Types.ObjectId,
       ref: "Department",
       required: true,
     },
 
-    doctor: {
-      type: Schema.Types.ObjectId,
-      ref: "Doctor",
+    queueNumber: {
+      type: Number,
+      required: true,
     },
 
     date: {
@@ -46,50 +47,28 @@ const QueueSchema = new Schema<IQueue>(
       required: true,
     },
 
-    currentNumber: {
-      type: Number,
-      default: 0,
-    },
-
-    totalServed: {
-      type: Number,
-      default: 0,
-    },
-
-    totalWaiting: {
-      type: Number,
-      default: 0,
-    },
-
-    averageWaitingTime: {
-      type: Number,
-      default: 0,
-    },
-
     status: {
       type: String,
       enum: Object.values(QueueStatus),
-      default: QueueStatus.OPEN,
+      default: QueueStatus.WAITING,
+    },
+
+    estimatedTime: {
+      type: Number,
+      default: 0,
+    },
+
+    checkedInAt: {
+      type: Date,
+      default: Date.now,
     },
   },
   {
     timestamps: true,
-  }
-);
-
-QueueSchema.index(
-  {
-    department: 1,
-    doctor: 1,
-    date: 1,
   },
-  {
-    unique: true,
-  }
 );
 
 const Queue: Model<IQueue> =
-  mongoose.models.Queue ||
-  mongoose.model<IQueue>("Queue", QueueSchema);
+  mongoose.models.Queue || mongoose.model<IQueue>("Queue", QueueSchema);
 
 export default Queue;

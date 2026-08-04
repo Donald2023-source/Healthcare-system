@@ -13,7 +13,12 @@ export const patientSchema = z.object({
 
   gender: z.enum(["MALE", "FEMALE"]),
 
-  dateOfBirth: z.date(),
+  dateOfBirth: z.coerce.date({
+    required_error: "Date of birth is required",
+  }),
+
+  allergies: z.string().optional(),
+  medicalConditions: z.string().optional(),
 
   bloodGroup: z.string().optional(),
 
@@ -24,6 +29,10 @@ export const patientSchema = z.object({
   address: z.string().min(5),
 
   emergencyContactName: z.string().min(2),
+
+  emergencyRelationship: z.string().min(1, "Relationship is required"),
+
+  emergencyContactAddress: z.string().min(1, "Address is required"),
 
   emergencyContactPhone: z.string().min(11),
 });
