@@ -1,9 +1,7 @@
 import Queue from "@/models/Queue";
-import Department from "@/models/Departments";
+import Department from "@/models/Department";
 
-export async function generateQueueNumber(
-  departmentId: string
-) {
+export async function generateQueueNumber(departmentId: string) {
   const department = await Department.findById(departmentId);
 
   if (!department) {

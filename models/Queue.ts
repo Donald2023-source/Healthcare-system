@@ -1,8 +1,9 @@
-import mongoose, { Document, Model, Schema } from "mongoose";
+import mongoose, { Schema, Document, models, model } from "mongoose";
 
 export enum QueueStatus {
   WAITING = "WAITING",
-  WITH_DOCTOR = "WITH_DOCTOR",
+  CALLED = "CALLED",
+  IN_PROGRESS = "IN_PROGRESS",
   COMPLETED = "COMPLETED",
   CANCELLED = "CANCELLED",
 }
@@ -14,13 +15,13 @@ export interface IQueue extends Document {
 
   queueNumber: number;
 
-  date: Date;
-
   status: QueueStatus;
 
-  estimatedTime: number;
+  date: Date;
 
-  checkedInAt: Date;
+  createdAt: Date;
+
+  updatedAt: Date;
 }
 
 const QueueSchema = new Schema<IQueue>(
@@ -42,23 +43,13 @@ const QueueSchema = new Schema<IQueue>(
       required: true,
     },
 
-    date: {
-      type: Date,
-      required: true,
-    },
-
     status: {
       type: String,
       enum: Object.values(QueueStatus),
       default: QueueStatus.WAITING,
     },
 
-    estimatedTime: {
-      type: Number,
-      default: 0,
-    },
-
-    checkedInAt: {
+    date: {
       type: Date,
       default: Date.now,
     },
@@ -68,7 +59,11 @@ const QueueSchema = new Schema<IQueue>(
   },
 );
 
-const Queue: Model<IQueue> =
-  mongoose.models.Queue || mongoose.model<IQueue>("Queue", QueueSchema);
+QueueSchema.index({
+  department: 1,
+  date: 1,
+});
+
+const Queue = models.Queue || model<IQueue>("Queue", QueueSchema);
 
 export default Queue;

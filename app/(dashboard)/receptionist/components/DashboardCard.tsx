@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils"; // or your cn helper
 interface DashboardCardProps {
   title: string;
   value: number | string;
-  subtitle: string;
+  subtitle?: string;
   icon: React.ReactNode;
   accent?: string;
 }

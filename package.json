@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed": "tsx scripts/seedDepartments.ts"
+     "seed:admin": "tsx scripts/seedAdmin.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",

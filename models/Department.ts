@@ -61,7 +61,7 @@ const DepartmentSchema = new Schema<IDepartment>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 DepartmentSchema.index({
@@ -69,10 +69,9 @@ DepartmentSchema.index({
 });
 
 const Department =
-  models.Department ||
-  model<IDepartment>(
-    "Department",
-    DepartmentSchema
-  );
+  models.Department || model<IDepartment>("Department", DepartmentSchema);
+
+console.log("Department model registered");
+console.log(mongoose.modelNames());
 
 export default Department;

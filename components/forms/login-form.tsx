@@ -19,7 +19,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { signIn } from "next-auth/react";
+import { signIn, getSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
 export function LoginForm() {
@@ -50,12 +50,28 @@ export function LoginForm() {
       return;
     }
 
-    toast.add({
-      title: "Login successful!",
-      type: "success",
-    });
+    const session = await getSession();
 
-    router.push("/dashboard");
+    switch (session?.user.role) {
+      case "ADMIN":
+        router.push("/admin");
+        break;
+
+      case "DOCTOR":
+        router.push("/doctor");
+        break;
+
+      case "RECEPTIONIST":
+        router.push("/receptionist");
+        break;
+
+      case "PATIENT":
+        router.push("/patient");
+        break;
+
+      default:
+        router.push("/");
+    }
   }
   return (
     <Card>

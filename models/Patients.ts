@@ -1,7 +1,7 @@
 import mongoose, { Schema, Model, Document } from "mongoose";
-
+import { IUser } from "./User";
 export interface IPatient extends Document {
-  user: mongoose.Types.ObjectId;
+  user: mongoose.Types.ObjectId | IUser;
 
   hospitalNumber: string;
 

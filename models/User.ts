@@ -1,4 +1,4 @@
-import mongoose, { Document, Model, Schema } from "mongoose";
+import mongoose, { Document, Model, Schema, Types } from "mongoose";
 
 export enum UserRole {
   ADMIN = "ADMIN",
@@ -28,6 +28,8 @@ export interface IUser extends Document {
   gender?: "MALE" | "FEMALE";
 
   dateOfBirth?: Date;
+
+  department?: Types.ObjectId | null;
 
   isActive: boolean;
 
@@ -93,6 +95,12 @@ const UserSchema = new Schema<IUser>(
 
     dateOfBirth: Date,
 
+    department: {
+      type: Schema.Types.ObjectId,
+      ref: "Department",
+      default: null,
+    },
+
     isActive: {
       type: Boolean,
       default: true,
@@ -110,7 +118,7 @@ const UserSchema = new Schema<IUser>(
   },
 );
 
-UserSchema.virtual("fullName").get(function () {
+UserSchema.virtual("fullName").get(function (this: IUser) {
   return [this.firstName, this.middleName, this.lastName]
     .filter(Boolean)
     .join(" ");

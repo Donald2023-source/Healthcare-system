@@ -1,31 +1,72 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
-import { Eye, EyeOff, Loader2 } from "lucide-react";
+
 import { useForm } from "react-hook-form";
+
 import { zodResolver } from "@hookform/resolvers/zod";
 
 import { registerSchema, RegisterSchema } from "@/lib/validations/auth";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+
+import { Button } from "@/components/ui/button";
+
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
+
 import { Label } from "@/components/ui/label";
+
+import {
+  Eye,
+  EyeOff,
+  Loader2,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
+
 import { toast } from "@/components/ui/toast";
+
 import { useRouter } from "next/navigation";
-export function RegisterForm() {
+
+export default function RegisterForm() {
+  const router = useRouter();
+
+  const [step, setStep] = useState(1);
+
   const [showPassword, setShowPassword] = useState(false);
 
   const {
     register,
     handleSubmit,
+    trigger,
     formState: { errors, isSubmitting },
   } = useForm<RegisterSchema>({
     resolver: zodResolver(registerSchema),
+    mode: "onChange",
   });
 
-  const router = useRouter()
+  async function nextStep() {
+    let fields: any = [];
+
+    if (step === 1) {
+      fields = ["firstName", "lastName", "email", "phoneNumber", "password"];
+    }
+
+    if (step === 2) {
+      fields = [
+        "gender",
+        "dateOfBirth",
+        "bloodGroup",
+        "genotype",
+        "maritalStatus",
+      ];
+    }
+
+    const valid = await trigger(fields);
+
+    if (valid) setStep(step + 1);
+  }
 
   async function onSubmit(data: RegisterSchema) {
     console.log(data);
@@ -34,123 +75,192 @@ export function RegisterForm() {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        fullName: data.fullName,
-        email: data.email,
-        phoneNumber: data.phoneNumber,
-        password: data.password,
-      }),
+      body: JSON.stringify(data),
     });
 
     const result = await response.json();
 
     if (!response.ok) {
+      console.log(result)
       toast.add({
         title: "Error",
         description: result.message,
-      
       });
+
       return;
     }
 
     toast.add({
       title: "Success",
-      description: "Account created successfully!",
+      description: "Patient account created",
     });
 
-    router.push("/dashboard");
+    router.push("/patient");
   }
 
   return (
-    <Card>
-      <CardHeader className="text-center space-y-2">
-        <h1 className="text-3xl font-bold">Create Account</h1>
-        <p className="text-muted-foreground">Register to book appointments</p>
+    <Card className="mx-auto w-full max-w-xl shadow-xl">
+      <CardHeader>
+        <div className="flex justify-between">
+          <h1 className="text-2xl font-bold">Patient Registration</h1>
+
+          <p className="text-sm text-muted-foreground">Step {step}/3</p>
+        </div>
+
+        <div className="flex gap-2 mt-4">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className={`h-2 flex-1 rounded-full ${
+                i <= step ? "bg-primary" : "bg-muted"
+              }`}
+            ></div>
+          ))}
+        </div>
       </CardHeader>
 
       <CardContent>
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
-          <div>
-            <Label>Full Name</Label>
-            <Input
-              className="rounded-sm mt-2"
-              {...register("fullName")}
-              placeholder="John Doe"
-            />
-            <p className="text-sm text-red-500">{errors.fullName?.message}</p>
-          </div>
+          {step === 1 && (
+            <>
+              <Field label="First Name" error={errors.firstName?.message}>
+                <Input {...register("firstName")} />
+              </Field>
 
-          <div>
-            <Label>Email</Label>
-            <Input
-              className="rounded-sm mt-2"
-              {...register("email")}
-              placeholder="john@example.com"
-            />
-            <p className="text-sm text-red-500">{errors.email?.message}</p>
-          </div>
+              <Field label="Last Name" error={errors.lastName?.message}>
+                <Input {...register("lastName")} />
+              </Field>
 
-          <div>
-            <Label>Phone Number</Label>
+              <Field label="Email" error={errors.email?.message}>
+                <Input type="email" {...register("email")} />
+              </Field>
 
-            <div className="relative">
-              <Input
-                className="rounded-sm mt-2"
-                type={"tel"}
-                placeholder="+2348149384729"
-                {...register("phoneNumber")}
-              />
-            </div>
+              <Field label="Phone Number" error={errors.phoneNumber?.message}>
+                <Input
+                  placeholder="+2348012345678"
+                  {...register("phoneNumber")}
+                />
+              </Field>
 
-            <p className="text-sm text-red-500">
-              {errors.phoneNumber?.message}
-            </p>
-          </div>
+              <Field label="Password" error={errors.password?.message}>
+                <div className="relative">
+                  <Input
+                    type={showPassword ? "text" : "password"}
+                    {...register("password")}
+                  />
 
-          <div>
-            <Label>Password</Label>
+                  <button
+                    type="button"
+                    className="absolute right-3 top-2"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </div>
+              </Field>
+            </>
+          )}
 
-            <div className="relative">
-              <Input
-                className="rounded-sm mt-2"
-                type={showPassword ? "text" : "password"}
-                {...register("password")}
-              />
+          {step === 2 && (
+            <>
+              <Field label="Gender">
+                <select
+                  className="border rounded-md p-2 w-full"
+                  {...register("gender")}
+                >
+                  <option value="">Select gender</option>
 
-              <button
+                  <option value="MALE">Male</option>
+
+                  <option value="FEMALE">Female</option>
+                </select>
+              </Field>
+
+              <Field label="Date of Birth">
+                <Input type="date" {...register("dateOfBirth")} />
+              </Field>
+
+              <Field label="Blood Group">
+                <Input placeholder="O+" {...register("bloodGroup")} />
+              </Field>
+
+              <Field label="Genotype">
+                <Input placeholder="AA" {...register("genotype")} />
+              </Field>
+
+              <Field label="Marital Status">
+                <Input placeholder="Single" {...register("maritalStatus")} />
+              </Field>
+            </>
+          )}
+
+          {step === 3 && (
+            <>
+              <Field label="Address">
+                <textarea
+                  className="border rounded-md p-3 w-full"
+                  rows={4}
+                  {...register("address")}
+                />
+              </Field>
+
+              <Field label="Emergency Contact Name">
+                <Input {...register("emergencyContactName")} />
+              </Field>
+
+              <Field label="Emergency Contact Phone">
+                <Input {...register("emergencyContactPhone")} />
+              </Field>
+            </>
+          )}
+
+          <div className="flex justify-between pt-5">
+            {step > 1 && (
+              <Button
                 type="button"
-                className="absolute right-3 top-3"
-                onClick={() => setShowPassword(!showPassword)}
+                variant="outline"
+                onClick={() => setStep(step - 1)}
               >
-                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-              </button>
-            </div>
-
-            <p className="text-sm text-red-500">{errors.password?.message}</p>
-          </div>
-
-          <Button
-            type="submit"
-            className="w-full cursor-pointer"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Creating Account...
-              </>
-            ) : (
-              "Register"
+                <ChevronLeft size={18} />
+                Back
+              </Button>
             )}
-          </Button>
 
-          <div className="text-center">
-            <Link href="/login" className="text-primary">
-              Already have an account?
-            </Link>
+            {step < 3 ? (
+              <Button type="button" onClick={nextStep}>
+                Next
+                <ChevronRight size={18} />
+              </Button>
+            ) : (
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="animate-spin mr-2" />
+                    Creating...
+                  </>
+                ) : (
+                  <>
+                    <Check />
+                    Create Account
+                  </>
+                )}
+              </Button>
+            )}
           </div>
         </form>
       </CardContent>
     </Card>
+  );
+}
+
+function Field({ label, children, error }: any) {
+  return (
+    <div className="space-y-2">
+      <Label>{label}</Label>
+
+      {children}
+
+      {error && <p className="text-sm text-red-500">{error}</p>}
+    </div>
   );
 }

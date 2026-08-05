@@ -1,5 +1,5 @@
-import {connectDB} from "@/lib/mongodb";
-import Department from "@/models/Departments";
+import { connectDB } from "@/lib/mongodb";
+import Department from "@/models/Department";
 
 const departments = [
   {

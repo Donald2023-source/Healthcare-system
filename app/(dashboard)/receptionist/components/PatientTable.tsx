@@ -1,5 +1,5 @@
 import { Patient } from "@/types/patient";
-
+import Link from "next/link";
 interface Props {
   patients: Patient[];
 }
@@ -36,9 +36,12 @@ export default function PatientTable({ patients }: Props) {
               <td className="p-4">{patient.gender}</td>
 
               <td className="p-4">
-                <button className="rounded bg-primary px-3 py-1 text-sm text-white">
+                <Link
+                  href={`/dashboard/patients/${patient._id}`}
+                  className="rounded bg-primary px-3 py-1 text-sm text-white"
+                >
                   View
-                </button>
+                </Link>
               </td>
             </tr>
           ))}
