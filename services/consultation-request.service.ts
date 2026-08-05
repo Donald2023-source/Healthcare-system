@@ -1,6 +1,10 @@
 import ConsultationRequest, {
   ConsultationRequestStatus,
 } from "@/models/ConsultationRequest";
+import "@/models/User";
+import "@/models/Patients";
+import "@/models/Department";
+import "@/models/Doctor";
 
 import Queue, { QueueStatus } from "@/models/Queue";
 
@@ -24,13 +28,17 @@ class ConsultationRequestService {
     return ConsultationRequest.find({
       status: ConsultationRequestStatus.REQUESTED,
     })
-      .populate("patient")
-      .populate("department")
+      .populate({
+        path: "patient",
+        populate: {
+          path: "user",
+          select: "firstName lastName email phoneNumber",
+        },
+      })
       .sort({
         createdAt: 1,
       });
   }
-
   /**
    * Get patient's latest consultation request
    */
@@ -72,6 +80,18 @@ class ConsultationRequestService {
       });
   }
 
+  async getDoctorsByDepartment(departmentId: string) {
+    const Doctor = (await import("@/models/Doctor")).default;
+
+    return Doctor.find({
+      department: departmentId,
+      isActive: true,
+    })
+      .populate("department")
+      .sort({
+        name: 1,
+      });
+  }
   /**
    * Patient history
    */
@@ -89,16 +109,22 @@ class ConsultationRequestService {
   /**
    * Reception assigns doctor
    */
-  async assignDoctor(requestId: string, doctorId: string) {
+  /**
+   * Reception assigns doctor
+   */
+  async assignDoctor(
+    requestId: string,
+    doctorId: string,
+    consultationDate: string,
+    consultationTime: string,
+  ) {
     const request = await ConsultationRequest.findById(requestId);
 
     if (!request) {
       throw new Error("Consultation request not found");
     }
 
-    /**
-     * Create queue
-     */
+    const appointment = new Date(`${consultationDate}T${consultationTime}`);
 
     const queue = await Queue.create({
       patient: request.patient,
@@ -108,8 +134,13 @@ class ConsultationRequestService {
     });
 
     request.assignedDoctor = doctorId as any;
+
     request.queue = queue._id as any;
+
+    request.consultationDate = appointment;
+
     request.status = ConsultationRequestStatus.WAITING;
+
     request.assignedAt = new Date();
 
     await request.save();

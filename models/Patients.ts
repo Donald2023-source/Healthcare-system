@@ -1,7 +1,7 @@
 import mongoose, { Schema, Model, Document } from "mongoose";
 import { IUser } from "./User";
 export interface IPatient extends Document {
-  user: mongoose.Types.ObjectId | IUser;
+  user: Schema.Types.ObjectId | IUser;
 
   hospitalNumber: string;
 
@@ -75,7 +75,7 @@ const PatientSchema = new Schema<IPatient>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 export default (mongoose.models.Patient as Model<IPatient>) ||

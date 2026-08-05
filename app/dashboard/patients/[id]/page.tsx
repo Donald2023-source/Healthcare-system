@@ -75,19 +75,12 @@ export default async function PatientDetailsPage({ params }: Props) {
           </div>
 
           <div className="flex w-full flex-col gap-3 sm:flex-row lg:w-auto">
-            <Button className="w-full sm:w-auto">
-              Edit Profile
-            </Button>
-
-            <Button
-              variant="outline"
-              className="w-full sm:w-auto"
-            >
+            <Button variant="outline" className="w-full sm:w-auto">
               <Link
                 href={`/receptionist/patients/${patient._id}`}
                 className="flex items-center gap-2"
               >
-                Edit Profile
+                Check In
               </Link>
             </Button>
           </div>
@@ -195,13 +188,9 @@ function InfoRow({
       </div>
 
       <div className="min-w-0 flex-1">
-        <p className="text-sm text-muted-foreground">
-          {label}
-        </p>
+        <p className="text-sm text-muted-foreground">{label}</p>
 
-        <p className="break-words font-medium">
-          {value}
-        </p>
+        <p className="break-words font-medium">{value}</p>
       </div>
     </div>
   );

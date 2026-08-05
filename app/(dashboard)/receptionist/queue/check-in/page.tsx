@@ -1,106 +1,81 @@
 "use client";
 
-import Link from "next/link";
-import { Search, UserPlus, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { Loader2, Eye } from "lucide-react";
 
-import PatientSearch from "../../components/PatientSearch";
-import PatientTable from "../../components/PatientTable";
 import { api } from "@/lib/api";
-import { Patient } from "@/types/patient";
+import ConsultationModal from "../../components/ConsultationModal";
 
-export default function CheckInPage() {
-  const [searchValue, setSearchValue] = useState("");
-  const [patients, setPatients] = useState<Patient[]>([]);
+export default function ConsultationRequests() {
+  const [requests, setRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const [selected, setSelected] = useState<any>(null);
+
   useEffect(() => {
-    loadPatients();
+    loadRequests();
   }, []);
 
-  useEffect(() => {
-    const timeout = setTimeout(() => {
-      loadPatients(searchValue);
-    }, 400);
-
-    return () => clearTimeout(timeout);
-  }, [searchValue]);
-
-  async function loadPatients(search?: string) {
+  async function loadRequests() {
     try {
       setLoading(true);
 
-      const url = search?.trim()
-        ? `/api/patients/search?q=${encodeURIComponent(search)}`
-        : "/api/patients";
+      const res = await api<{ data: any[] }>("/api/receptionist/consultations");
 
-      const data = await api<{ data: Patient[] }>(url);
-      console.log(data);
-
-      setPatients(data?.data || []);
-    } catch (error) {
-      console.error(error);
-      setPatients([]);
+      setRequests(res.data);
+      console.log(res.data);
+    } catch (err) {
+      console.log(err);
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-6 px-4 py-6 md:px-8">
-      {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Patient Check-In</h1>
+    <div className="p-6 space-y-6">
+      <h1 className="text-3xl font-bold">Pending Consultation Requests</h1>
 
-          <p className="mt-1 text-muted-foreground">
-            Search and select a patient to begin the check-in process.
-          </p>
-        </div>
-
-        <Link
-          href="/receptionist/patients/new"
-          className="inline-flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-white"
-        >
-          <UserPlus size={18} />
-          Register Patient
-        </Link>
-      </div>
-
-      {/* Search */}
-      <PatientSearch value={searchValue} onChange={setSearchValue} />
-
-      {/* Table */}
-      <div className="rounded-xl border bg-card">
+      <div className="rounded-xl border">
         {loading ? (
-          <div className="flex h-64 items-center justify-center gap-2 text-muted-foreground">
-            <Loader2 className="h-5 w-5 animate-spin" />
-            Loading patients...
+          <div className="h-64 flex items-center justify-center">
+            <Loader2 className="animate-spin" />
           </div>
-        ) : patients.length > 0 ? (
-          <PatientTable patients={patients} />
         ) : (
-          <div className="flex h-64 flex-col items-center justify-center">
-            <Search className="mb-4 h-10 w-10 text-muted-foreground" />
-
-            <h2 className="text-lg font-semibold">No Patients Found</h2>
-
-            <p className="mt-2 text-center text-muted-foreground">
-              {searchValue
-                ? `No patient matched "${searchValue}".`
-                : "There are no registered patients yet."}
-            </p>
-
-            <Link
-              href="/receptionist/patients/new"
-              className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-white"
+          requests.map((request) => (
+            <div
+              key={request._id}
+              className="flex items-center justify-between border-b p-5"
             >
-              <UserPlus size={18} />
-              Register Patient
-            </Link>
-          </div>
+              <div>
+                <h3 className="font-semibold">
+                  {request.patient.user.fullName}
+                </h3>
+
+                <p>
+                  Number:
+                  {request.patient.hospitalNumber}
+                </p>
+              </div>
+
+              <button
+                onClick={() => setSelected(request)}
+                className="flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-white"
+              >
+                <Eye size={18} />
+                View
+              </button>
+            </div>
+          ))
         )}
       </div>
+
+      {selected && (
+        <ConsultationModal
+          request={selected}
+          close={() => setSelected(null)}
+          refresh={loadRequests}
+        />
+      )}
     </div>
   );
 }
