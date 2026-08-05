@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
 
     const queue =
       await queueService.checkIn(
-        validated as Parameters<(typeof queueService)["checkIn"]>[0]
+        validated as unknown as Parameters<(typeof queueService)["checkIn"]>[0]
       );
 
     return NextResponse.json(

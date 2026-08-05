@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import {connectDB} from "@/lib/mongodb";
 import patientService from "@/services/patient.service";
 import { auth } from "@/auth";
+import consultationService from "@/services/consultation.service";
 
 export async function GET() {
   try {
@@ -18,7 +19,7 @@ export async function GET() {
     }
 
     const consultations =
-      await patientService.getConsultationHistory(
+      await consultationService.getPatientHistory(
         session.user.id
       );
 

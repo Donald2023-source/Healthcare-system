@@ -8,9 +8,9 @@ class ConsultationService {
       assignedDoctor: doctorId,
       queue: data.queueId,
 
-      diagnosis: data.diagnosis,
+      // diagnosis: data.diagnosis,
 
-      prescription: data.prescription,
+      // prescription: data.prescription,
     });
 
     await Queue.findByIdAndUpdate(data.queueId, {

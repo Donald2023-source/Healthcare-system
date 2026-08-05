@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-     "seed:admin": "tsx scripts/seedAdmin.ts"
+    "seed:admin": "tsx scripts/seedAdmin.ts"
   },
   "dependencies": {
     "@base-ui/react": "^1.6.0",
@@ -23,6 +23,7 @@
     "date-fns": "^4.4.0",
     "jsonwebtoken": "^9.0.3",
     "lucide-react": "^1.28.0",
+    "mongodb": "^7.5.0",
     "mongoose": "^9.9.1",
     "next": "16.2.12",
     "next-auth": "^5.0.0-beta.32",

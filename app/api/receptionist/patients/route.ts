@@ -12,13 +12,17 @@ export async function POST(req: NextRequest) {
 
     const data = patientSchema.parse(body);
 
-    const result = await patientService.create(data);
+    const result = (await patientService.create(data)) as {
+      patient?: {
+        hospitalNumber?: string;
+      };
+    };
 
     return NextResponse.json(
       {
         message: "Patient registered successfully.",
         data: {
-          hospitalNumber: result?.hospitalNumber,
+          hospitalNumber: result?.patient?.hospitalNumber,
         },
       },
       {

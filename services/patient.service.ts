@@ -1,13 +1,17 @@
 // services/patient.service.ts
 
-import Patient from "@/models/Patients";
+import Patient, { IPatient } from "@/models/Patients";
 import Consultation from "@/models/Consultation";
 import ConsultationRequest from "@/models/ConsultationRequest";
 import Queue from "@/models/Queue";
 import { hashPassword } from "@/lib/password";
 import { generateHospitalNumber } from "@/lib/generateHospitalNumber";
-import User, { UserRole } from "@/models/User";
+import User, { UserRole, IUser } from "@/models/User";
+import mongoose from "mongoose";
 
+type PopulatedPatient = Omit<IPatient, "user"> & {
+  user: IUser;
+};
 class PatientService {
   async create(data: any) {
     const user = await User.create({
@@ -25,7 +29,7 @@ class PatientService {
     });
 
     const patient = await Patient.create({
-      user: user._id,
+      user: user._id as mongoose.Types.ObjectId,
 
       hospitalNumber: data.hospitalNumber || generateHospitalNumber(),
 
@@ -102,7 +106,7 @@ class PatientService {
   }
 
   async findById(id: string) {
-    return Patient.findById(id).populate("user");
+    return Patient.findById(id).populate("user").lean<PopulatedPatient>();
   }
 
   async getProfile(userId: string) {
@@ -144,6 +148,17 @@ class PatientService {
     await patient.save();
 
     return patient.populate("user");
+  }
+
+  async search(query: string) {
+    return Patient.find({
+      $or: [
+        { hospitalNumber: { $regex: query, $options: "i" } },
+        { firstName: { $regex: query, $options: "i" } },
+        { lastName: { $regex: query, $options: "i" } },
+        { phoneNumber: { $regex: query, $options: "i" } },
+      ],
+    }).limit(20);
   }
 }
 

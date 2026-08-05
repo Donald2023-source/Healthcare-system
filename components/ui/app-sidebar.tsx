@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Users } from "lucide-react";
 import { cn } from "@/lib/utils";
-
+import { Button } from "@base-ui/react";
 import {
   doctorSidebar,
   receptionistSidebar,
@@ -112,7 +112,13 @@ export function AppSidebar({ role }: AppSidebarProps) {
           <div className="h-2 w-2 rounded-full bg-emerald-500" />
 
           <span className="text-xs group-data-[collapsible=icon]:hidden">
-            {title} · {status}
+            <Button
+              onClick={() => {
+                window.location.href = "/login";
+              }}
+            >
+              Logout
+            </Button>
           </span>
         </div>
       </SidebarFooter>

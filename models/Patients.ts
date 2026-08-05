@@ -1,7 +1,7 @@
 import mongoose, { Schema, Model, Document } from "mongoose";
 import { IUser } from "./User";
 export interface IPatient extends Document {
-  user: Schema.Types.ObjectId | IUser;
+  user: mongoose.Types.ObjectId | IUser;
 
   hospitalNumber: string;
 
@@ -29,7 +29,7 @@ export interface IPatient extends Document {
 const PatientSchema = new Schema<IPatient>(
   {
     user: {
-      type: Schema.Types.ObjectId,
+      type: mongoose.Types.ObjectId,
       ref: "User",
       required: true,
       unique: true,

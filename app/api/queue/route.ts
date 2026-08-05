@@ -2,21 +2,24 @@ import { NextRequest, NextResponse } from "next/server";
 
 import { connectDB } from "@/lib/mongodb";
 import queueService from "@/services/queue.service";
+import { auth } from "@/auth";
 
 export async function GET() {
   try {
     await connectDB();
 
-    const queue = await queueService.getTodayQueue();
+    const session = await auth();
+
+    if (!session?.user?.id) {
+      return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+    }
+    const queue = await queueService.getTodayQueue(session.user.id);
 
     return NextResponse.json({
       data: queue,
     });
   } catch (error: any) {
-    return NextResponse.json(
-      { message: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: error.message }, { status: 500 });
   }
 }
 
@@ -35,12 +38,9 @@ export async function POST(request: NextRequest) {
       },
       {
         status: 201,
-      }
+      },
     );
   } catch (error: any) {
-    return NextResponse.json(
-      { message: error.message },
-      { status: 500 }
-    );
+    return NextResponse.json({ message: error.message }, { status: 500 });
   }
 }
