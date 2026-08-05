@@ -10,10 +10,6 @@ import User, { UserRole } from "@/models/User";
 
 class PatientService {
   async create(data: any) {
-    const password = Math.random().toString(36).slice(-8);
-
-    const hashedPassword = await hashPassword(password);
-
     const user = await User.create({
       firstName: data.firstName,
       middleName: data.middleName,
@@ -22,7 +18,8 @@ class PatientService {
       email: data.email,
       phoneNumber: data.phoneNumber,
 
-      password: hashedPassword,
+      // use the already hashed password from the route
+      password: data.password,
 
       role: UserRole.PATIENT,
     });
@@ -30,25 +27,25 @@ class PatientService {
     const patient = await Patient.create({
       user: user._id,
 
-      hospitalNumber: generateHospitalNumber(),
+      hospitalNumber: data.hospitalNumber || generateHospitalNumber(),
 
       gender: data.gender,
-
       dateOfBirth: data.dateOfBirth,
 
       bloodGroup: data.bloodGroup,
-
       genotype: data.genotype,
-
       maritalStatus: data.maritalStatus,
 
       address: data.address,
 
       emergencyContactName: data.emergencyContactName,
-
       emergencyContactPhone: data.emergencyContactPhone,
     });
-    return patient;
+
+    return {
+      user,
+      patient,
+    };
   }
   /**
    * Dashboard

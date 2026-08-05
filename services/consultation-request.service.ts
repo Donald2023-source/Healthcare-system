@@ -32,6 +32,47 @@ class ConsultationRequestService {
   }
 
   /**
+   * Get patient's latest consultation request
+   */
+  async getLatestRequest(patientId: string) {
+    return (
+      ConsultationRequest.findOne({
+        patient: patientId,
+      })
+        // .populate("department")
+        .populate("assignedDoctor")
+        .populate("queue")
+        .sort({
+          createdAt: -1,
+        })
+        .lean()
+    );
+  }
+
+  /**
+   * Get patient's active consultation request
+   */
+  async getActiveRequest(patientId: string) {
+    return ConsultationRequest.findOne({
+      patient: patientId,
+      status: {
+        $in: [
+          ConsultationRequestStatus.REQUESTED,
+          ConsultationRequestStatus.WAITING,
+          ConsultationRequestStatus.CALLED,
+          ConsultationRequestStatus.IN_PROGRESS,
+        ],
+      },
+    })
+      .populate("department")
+      .populate("assignedDoctor")
+      .populate("queue")
+      .sort({
+        createdAt: -1,
+      });
+  }
+
+  /**
    * Patient history
    */
   async getPatientRequests(patientId: string) {

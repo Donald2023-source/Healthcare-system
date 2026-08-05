@@ -3,28 +3,27 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import {
-  Home,
-  FileText,
-  User,
-} from "lucide-react";
+import { Home, Stethoscope, FileText, User } from "lucide-react";
 
-import { cn } from "@/lib/utils";
-
-const links = [
+const navigation = [
   {
+    name: "Home",
     href: "/patient",
-    label: "Home",
     icon: Home,
   },
   {
-    href: "/patient/history",
-    label: "History",
+    name: "Consult",
+    href: "/patient/consultations",
+    icon: Stethoscope,
+  },
+  {
+    name: "Records",
+    href: "/patient/records",
     icon: FileText,
   },
   {
+    name: "Profile",
     href: "/patient/profile",
-    label: "Profile",
     icon: User,
   },
 ];
@@ -33,28 +32,27 @@ export default function PatientBottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed bottom-0 left-1/2 z-50 w-full max-w-md -translate-x-1/2 border-t bg-background">
-      <div className="flex h-16 items-center justify-around">
-        {links.map((link) => {
-          const Icon = link.icon;
+    <nav className="fixed bottom-0 left-0 right-0 border-t bg-background">
+      <div className="mx-auto flex max-w-5xl justify-around p-3">
+        {navigation.map((item) => {
+          const Icon = item.icon;
 
           const active =
-            pathname === link.href;
+            pathname === item.href || pathname.startsWith(item.href + "/");
 
           return (
             <Link
-              key={link.href}
-              href={link.href}
-              className={cn(
-                "flex flex-col items-center gap-1 text-xs transition-colors",
+              key={item.href}
+              href={item.href}
+              className={`flex flex-col items-center gap-1 text-xs transition ${
                 active
                   ? "text-primary"
-                  : "text-muted-foreground"
-              )}
+                  : "text-muted-foreground hover:text-primary"
+              }`}
             >
               <Icon className="h-5 w-5" />
 
-              <span>{link.label}</span>
+              <span>{item.name}</span>
             </Link>
           );
         })}

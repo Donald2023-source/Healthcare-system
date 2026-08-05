@@ -3,19 +3,22 @@ import { Plus } from "lucide-react";
 
 import { connectDB } from "@/lib/mongodb";
 import queueService from "@/services/queue.service";
+import { auth } from "@/auth";
 
 export default async function QueuePage() {
   const db = await connectDB();
-
-  const queue = await queueService.getTodayQueue();
+  const session = await auth();
+  
+  if (!session?.user?.id) {
+    return null;
+  }
+  const queue = await queueService.getTodayQueue(session?.user?.id);
 
   return (
     <div className="space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold">
-            Patient Queue
-          </h1>
+          <h1 className="text-3xl font-bold">Patient Queue</h1>
 
           <p className="text-muted-foreground">
             Patients currently waiting for consultation.
@@ -45,37 +48,23 @@ export default async function QueuePage() {
           </thead>
 
           <tbody>
-            {queue.map((item: any) => (
-              <tr
-                key={item._id}
-                className="border-b"
-              >
-                <td className="p-4">
-                  #{item.queueNumber}
-                </td>
+            {queue?.map((item: any) => (
+              <tr key={item._id} className="border-b">
+                <td className="p-4">#{item.queueNumber}</td>
+
+                <td className="p-4">{item.patient.hospitalNumber}</td>
 
                 <td className="p-4">
-                  {item.patient.hospitalNumber}
+                  {item.patient.user.firstName} {item.patient.user.lastName}
                 </td>
 
-                <td className="p-4">
-                  {item.patient.user.firstName}{" "}
-                  {item.patient.user.lastName}
-                </td>
+                <td className="p-4">{item.department.name}</td>
 
                 <td className="p-4">
-                  {item.department.name}
+                  {new Date(item.createdAt).toLocaleTimeString()}
                 </td>
 
-                <td className="p-4">
-                  {new Date(
-                    item.createdAt
-                  ).toLocaleTimeString()}
-                </td>
-
-                <td className="p-4">
-                  {item.status}
-                </td>
+                <td className="p-4">{item.status}</td>
               </tr>
             ))}
           </tbody>

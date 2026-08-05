@@ -1,149 +1,72 @@
-import Link from "next/link";
+import { Bell } from "lucide-react";
+import { auth } from "@/auth";
+import patientService from "@/services/patient.service";
+import PatientBottomNav from "./components/PatientBottomNav";
 
-import { Home, Stethoscope, FileText, User, Bell } from "lucide-react";
-
-export default function PatientLayout({
+export default async function PatientLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const navigation = [
-    {
-      name: "Home",
-      href: "/patient",
-      icon: Home,
-    },
+  const session = await auth();
 
-    {
-      name: "Consult",
-      href: "/patient/consultations",
-      icon: Stethoscope,
-    },
+  if (!session?.user?.id) {
+    return null;
+  }
 
-    {
-      name: "Records",
-      href: "/patient/records",
-      icon: FileText,
-    },
+  const patient = await patientService.getProfile(session.user.id);
 
-    {
-      name: "Profile",
-      href: "/patient/profile",
-      icon: User,
-    },
-  ];
+  if (!patient) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <p>Patient profile not found.</p>
+      </div>
+    );
+  }
+
+  const user = patient.user as any;
+
+  const hour = new Date().getHours();
+
+  const greeting =
+    hour < 12
+      ? "Good Morning"
+      : hour < 17
+      ? "Good Afternoon"
+      : "Good Evening";
 
   return (
-    <div
-      className="
-min-h-screen
-bg-muted/20
-"
-    >
-      {/* Top Header */}
+    <div className="min-h-screen bg-muted/20">
+      {/* Header */}
+      <header className="sticky top-0 z-20 rounded-b-3xl bg-primary text-primary-foreground shadow">
+        <div className="mx-auto flex max-w-5xl items-center justify-between p-6">
+          <div>
+            <p className="text-sm opacity-80">
+              {greeting} 👋
+            </p>
 
-      <header
-        className="
-sticky
-top-0
-z-10
-bg-primary
-text-primary-foreground
-rounded-b-3xl
-"
-      >
-        <div
-          className="
-mx-auto
-max-w-5xl
-p-6
-"
-        >
-          <div
-            className="
-flex
-items-center
-justify-between
-"
-          >
-            <div>
-              <p className="text-sm opacity-80">Good Morning 👋</p>
+            <h1 className="text-2xl font-bold">
+              {user.firstName} {user.lastName}
+            </h1>
 
-              <h1
-                className="
-text-2xl
-font-bold
-"
-              >
-                Donald Yusuf
-              </h1>
-            </div>
-
-            <button>
-              <Bell className="h-5 w-5" />
-            </button>
+            <p className="mt-1 text-sm opacity-80">
+              {patient.hospitalNumber}
+            </p>
           </div>
+
+          <button className="rounded-full bg-white/10 p-3 transition hover:bg-white/20">
+            <Bell className="h-5 w-5" />
+          </button>
         </div>
       </header>
 
-      {/* Page Content */}
-
-      <main
-        className="
-mx-auto
-max-w-5xl
-pb-24
-"
-      >
+      {/* Page */}
+      <main className="mx-auto max-w-5xl pb-24">
         {children}
       </main>
 
       {/* Bottom Navigation */}
-
-      <nav
-        className="
-fixed
-bottom-0
-left-0
-right-0
-border-t
-bg-background
-"
-      >
-        <div
-          className="
-mx-auto
-max-w-5xl
-flex
-justify-around
-p-3
-"
-        >
-          {navigation.map((item) => {
-            const Icon = item.icon;
-
-            return (
-              <Link
-                href={item.href}
-                key={item.href}
-                className="
-flex
-flex-col
-items-center
-gap-1
-text-xs
-text-muted-foreground
-hover:text-primary
-"
-              >
-                <Icon className="h-5 w-5" />
-
-                <span>{item.name}</span>
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
+      <PatientBottomNav />
     </div>
   );
 }

@@ -81,7 +81,7 @@ export default function RegisterForm() {
     const result = await response.json();
 
     if (!response.ok) {
-      console.log(result)
+      console.log(result);
       toast.add({
         title: "Error",
         description: result.message,
@@ -95,7 +95,7 @@ export default function RegisterForm() {
       description: "Patient account created",
     });
 
-    router.push("/patient");
+    router.push("/login");
   }
 
   return (

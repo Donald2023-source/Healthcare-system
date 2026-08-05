@@ -1,6 +1,5 @@
-"use client";
-
 import Link from "next/link";
+import React from "react";
 import {
   CalendarPlus,
   ChevronRight,
@@ -11,26 +10,45 @@ import {
   User,
 } from "lucide-react";
 
-export default function PatientHomePage() {
+interface Props {
+  dashboard: any;
+  consultation: any;
+}
+
+export default function PatientHomePage({ dashboard, consultation }: Props) {
+  const patient = dashboard.patient;
+  const queue = dashboard.currentQueue;
+  // const consultation = dashboard.recentConsultation;
+  const activeRequest = dashboard.activeConsultation;
+
+  const user = patient.user as any;
+
   return (
     <div className="mx-auto max-w-5xl space-y-6 p-5">
-      {/* Welcome */}
-      {/* Hospital Card */}
       <section className="rounded-2xl bg-primary p-6 text-primary-foreground shadow-lg">
         <p className="text-sm opacity-80">Hospital Number</p>
 
-        <h2 className="mt-1 text-3xl font-bold">SCH-2026-00125</h2>
+        <h2 className="mt-1 text-3xl font-bold">{patient.hospitalNumber}</h2>
 
         <div className="mt-5 flex flex-wrap gap-2">
-          <span className="rounded-full bg-white/20 px-3 py-1 text-xs">
-            Queue #12
-          </span>
+          {queue ? (
+            <>
+              <span className="rounded-full bg-white/20 px-3 py-1 text-xs">
+                Queue #{queue.queueNumber}
+              </span>
 
-          <span className="rounded-full bg-white/20 px-3 py-1 text-xs">
-            General OPD
-          </span>
+              <span className="rounded-full bg-white/20 px-3 py-1 text-xs">
+                {queue.department?.name}
+              </span>
+            </>
+          ) : (
+            <span className="rounded-full bg-white/20 px-3 py-1 text-xs">
+              No Active Queue
+            </span>
+          )}
         </div>
       </section>
+
       {/* Quick Actions */}
       <section>
         <h2 className="mb-4 text-lg font-semibold">Quick Actions</h2>
@@ -62,7 +80,7 @@ export default function PatientHomePage() {
         </div>
       </section>
 
-      {/* Queue */}
+      {/* Current Queue */}
       <section className="rounded-2xl border bg-card p-5 shadow-sm">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="font-semibold">Current Consultation</h2>
@@ -70,33 +88,41 @@ export default function PatientHomePage() {
           <HeartPulse className="text-primary" />
         </div>
 
-        <p className="font-medium">Waiting in Queue</p>
+        {queue ? (
+          <>
+            <p className="font-medium">{queue.status}</p>
 
-        <p className="mt-1 text-muted-foreground">General OPD</p>
+            <p className="mt-1 text-muted-foreground">
+              {queue.department?.name}
+            </p>
 
-        <div className="mt-4 flex items-center justify-between">
-          <div>
-            <p className="text-2xl font-bold">#12</p>
+            <div className="mt-4 flex items-center justify-between">
+              <div>
+                <p className="text-2xl font-bold">#{queue.queueNumber}</p>
 
-            <p className="text-sm text-muted-foreground">Queue Number</p>
-          </div>
+                <p className="text-sm text-muted-foreground">Queue Number</p>
+              </div>
 
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <Clock size={16} />
-            15 mins
-          </div>
-        </div>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <Clock size={16} />
+                Waiting...
+              </div>
+            </div>
 
-        <Link
-          href="/patient/queue"
-          className="mt-5 flex items-center gap-2 text-primary"
-        >
-          View Queue
-          <ChevronRight size={18} />
-        </Link>
+            <Link
+              href="/patient/queue"
+              className="mt-5 flex items-center gap-2 text-primary"
+            >
+              View Queue
+              <ChevronRight size={18} />
+            </Link>
+          </>
+        ) : (
+          <p className="text-muted-foreground">
+            You are not currently in a queue.
+          </p>
+        )}
       </section>
-
-      {/* Recent Consultation */}
 
       <section className="rounded-2xl border bg-card p-5 shadow-sm">
         <div className="mb-4 flex items-center justify-between">
@@ -105,34 +131,60 @@ export default function PatientHomePage() {
           <FileText className="text-primary" />
         </div>
 
-        <p className="font-medium">Malaria</p>
+        {consultation ? (
+          <>
+            <p className="font-medium">
+              {consultation.diagnosis || "No diagnosis"}
+            </p>
 
-        <p className="text-sm text-muted-foreground">Dr John Doe</p>
+            <p className="text-sm text-muted-foreground">
+              Dr. {(consultation.doctor as any)?.firstName}{" "}
+              {(consultation.doctor as any)?.lastName}
+            </p>
 
-        <p className="mt-1 text-sm text-muted-foreground">12 July 2026</p>
+            <p className="mt-1 text-sm text-muted-foreground">
+              <p className="mt-1 text-sm text-muted-foreground">
+                {consultation?.createdAt
+                  ? new Date(consultation.createdAt).toLocaleDateString(
+                      "en-US",
+                      {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      },
+                    )
+                  : "No date scheduled"}
+              </p>
+            </p>
 
-        <Link
-          href="/patient/records/1"
-          className="mt-5 flex items-center gap-2 text-primary"
-        >
-          View Details
-          <ChevronRight size={18} />
-        </Link>
+            <Link
+              href={`/patient/records/${consultation._id}`}
+              className="mt-5 flex items-center gap-2 text-primary"
+            >
+              View Details
+              <ChevronRight size={18} />
+            </Link>
+          </>
+        ) : (
+          <p className="text-muted-foreground">No consultation history.</p>
+        )}
       </section>
 
       {/* Health Summary */}
-
       <section className="rounded-2xl border bg-card p-5 shadow-sm">
         <h2 className="mb-4 font-semibold">Health Summary</h2>
 
         <div className="grid grid-cols-2 gap-4 text-sm">
-          <Info label="Blood Group" value="O+" />
+          <Info label="Blood Group" value={patient.bloodGroup ?? "--"} />
 
-          <Info label="Genotype" value="AA" />
+          <Info label="Genotype" value={patient.genotype ?? "--"} />
 
-          <Info label="Allergies" value="None" />
+          <Info label="Marital Status" value={patient.maritalStatus ?? "--"} />
 
-          <Info label="Status" value="Active" />
+          <Info
+            label="Status"
+            value={activeRequest ? activeRequest.status : "Inactive"}
+          />
         </div>
       </section>
     </div>

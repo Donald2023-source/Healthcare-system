@@ -43,7 +43,7 @@ export async function POST(req: Request) {
       status: 200,
       user: {
         id: user._id,
-        fullName: user.fullName,
+        fullName: `${user.firstName} ${user.lastName}`,
         email: user.email,
         role: user.role,
       },
