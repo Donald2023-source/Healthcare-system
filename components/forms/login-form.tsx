@@ -76,7 +76,7 @@ export function LoginForm() {
   return (
     <Card>
       <CardHeader className="space-y-2 text-center">
-        <h1 className="text-3xl font-bold">Hospital Queue</h1>
+        <h1 className="text-3xl font-bold">Queue Care</h1>
 
         <p className="text-muted-foreground">Sign in to continue</p>
       </CardHeader>
