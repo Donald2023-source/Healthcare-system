@@ -15,7 +15,7 @@ class ConsultationRequestService {
   async create(patientId: string, data: any) {
     return ConsultationRequest.create({
       patient: patientId,
-      department: data.department,
+
       reason: data.reason,
       priority: data.priority ?? "NORMAL",
     });

@@ -43,6 +43,7 @@ export function LoginForm() {
     });
 
     if (result?.error) {
+      console.log(result);
       toast.add({
         title: "Invalid email or password.",
         type: "error",

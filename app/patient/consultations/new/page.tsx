@@ -32,7 +32,7 @@ export default function NewConsultationPage() {
         const res = await fetch("/api/departments");
 
         const data = await res.json();
-        console.log(data)
+        console.log(data);
 
         if (res.ok) {
           setDepartments(data.data ?? []);
@@ -93,7 +93,7 @@ export default function NewConsultationPage() {
           title: "Error",
           description: data.message,
         });
-console.log(data)
+        console.log(data);
         return;
       }
 
@@ -134,24 +134,6 @@ console.log(data)
       </div>
 
       <div className="rounded-2xl border bg-card p-6 shadow-sm space-y-6">
-        <div>
-          <Label>Department</Label>
-
-          <select
-            value={department}
-            onChange={(e) => setDepartment(e.target.value)}
-            className="mt-2 w-full rounded-md border bg-background p-3"
-          >
-            <option value="">Select Department</option>
-
-            {departments.map((dept) => (
-              <option key={dept._id} value={dept._id}>
-                {dept.name}
-              </option>
-            ))}
-          </select>
-        </div>
-
         <div>
           <Label>Reason for Visit</Label>
 

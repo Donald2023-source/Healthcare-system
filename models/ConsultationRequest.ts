@@ -19,8 +19,6 @@ export enum ConsultationPriority {
 export interface IConsultationRequest extends mongoose.Document {
   patient: mongoose.Types.ObjectId;
 
-  department: mongoose.Types.ObjectId;
-
   assignedDoctor?: mongoose.Types.ObjectId;
 
   queue?: mongoose.Types.ObjectId;
@@ -52,12 +50,6 @@ const ConsultationRequestSchema = new Schema<IConsultationRequest>(
     patient: {
       type: Schema.Types.ObjectId,
       ref: "Patient",
-      required: true,
-    },
-
-    department: {
-      type: Schema.Types.ObjectId,
-      ref: "Department",
       required: true,
     },
 

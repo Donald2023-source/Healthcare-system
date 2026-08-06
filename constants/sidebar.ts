@@ -10,8 +10,6 @@ import {
   Users,
 } from "lucide-react";
 
-
-
 export const adminSidebar = {
   title: "Admin",
   subtitle: "Hospital Management",
@@ -89,11 +87,6 @@ export const receptionistSidebar = {
       title: "Check-In Patient",
       href: "/receptionist/queue/check-in",
       icon: ClipboardList,
-    },
-    {
-      title: "View Queue",
-      href: "/receptionist/queue",
-      icon: Users,
-    },
+    }
   ],
 };
